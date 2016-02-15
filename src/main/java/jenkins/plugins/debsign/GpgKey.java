@@ -1,4 +1,4 @@
-package jenkins.plugins.rpmsign;
+package jenkins.plugins.debsign;
 
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;

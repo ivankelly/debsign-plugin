@@ -1,21 +1,19 @@
-package jenkins.plugins.rpmsign;
+package jenkins.plugins.debsign;
 
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class Rpm extends AbstractDescribableImpl<Rpm> {
+public class Deb extends AbstractDescribableImpl<Deb> {
   private final String gpgKeyName;
   private final String includes;
   private final String cmdlineOpts;
-  private final boolean resign;
 
   @DataBoundConstructor
-  public Rpm(String gpgKeyName, String includes, String cmdlineOpts, boolean resign) {
+  public Deb(String gpgKeyName, String includes, String cmdlineOpts) {
     this.gpgKeyName = gpgKeyName;
     this.includes = includes;
-    this.resign = resign;
     this.cmdlineOpts = cmdlineOpts;
   }
 
@@ -30,13 +28,9 @@ public class Rpm extends AbstractDescribableImpl<Rpm> {
   public String getCmdlineOpts() {
     return cmdlineOpts;
   }
-    
-  public boolean isResign() {
-    return resign;
-  }
 
   @Extension
-  public static class DescriptorImpl extends Descriptor<Rpm> {
+  public static class DescriptorImpl extends Descriptor<Deb> {
     @Override
     public String getDisplayName() {
       return ""; // unused

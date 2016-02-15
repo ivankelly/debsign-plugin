@@ -1,25 +1,21 @@
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
 
-  <f:entry title="${%Sign RPMs}">
+  <f:entry title="${%Sign DEBs}">
 
-    <f:repeatable var="rpms" items="${instance.entries}" minimum="${1}" add="${%Add RPM(s)}">
+    <f:repeatable var="debs" items="${instance.entries}" minimum="${1}" add="${%Add DEB(s)}">
 
       <table width="100%">
 
         <f:entry field="gpgKeyName" title="${%GPG Key}">
-          <f:select value="${rpms.gpgKeyName}" />
+          <f:select value="${debs.gpgKeyName}" />
         </f:entry>
 
         <f:entry field="includes" title="${%Includes}">
-          <f:textbox value="${rpms.includes}" />
+          <f:textbox value="${debs.includes}" />
         </f:entry>
 
         <f:entry field="cmdlineOpts" title="${%Cmdline Options}">
-          <f:textbox value="${rpms.cmdlineOpts}" />
-        </f:entry>
-
-        <f:entry field="resign">
-          <f:checkbox value="${rpms.resign}" checked="${rpms.resign}" title="${%Resign?}" />
+          <f:textbox value="${debs.cmdlineOpts}" />
         </f:entry>
 
         <f:entry title="">

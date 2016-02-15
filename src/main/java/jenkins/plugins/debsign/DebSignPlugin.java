@@ -1,4 +1,4 @@
-package jenkins.plugins.rpmsign;
+package jenkins.plugins.debsign;
 
 import hudson.Extension;
 import hudson.FilePath;
@@ -30,13 +30,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class RpmSignPlugin extends Recorder {
+public class DebSignPlugin extends Recorder {
 
-  private List<Rpm> entries = Collections.emptyList();
+  private List<Deb> entries = Collections.emptyList();
 
   @DataBoundConstructor
-  public RpmSignPlugin(List<Rpm> rpms) {
-    this.entries = rpms;
+  public DebSignPlugin(List<Deb> debs) {
+    this.entries = debs;
     if (this.entries == null) {
       this.entries = Collections.emptyList();
     }
@@ -56,82 +56,75 @@ public class RpmSignPlugin extends Recorder {
   }
 
   @SuppressWarnings("unused")
-  public List<Rpm> getEntries() {
+  public List<Deb> getEntries() {
     return entries;
   }
 
   @Override
   public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
     if (isPerformDeployment(build)) {
-      listener.getLogger().println("[RpmSignPlugin] - Starting signing RPMs ...");
+      listener.getLogger().println("[DebSignPlugin] - Starting signing DEBs ...");
 
-      for (Rpm rpmEntry : entries) {
-        StringTokenizer rpmGlobTokenizer = new StringTokenizer(rpmEntry.getIncludes(), ",");
+      for (Deb debEntry : entries) {
+        StringTokenizer debGlobTokenizer = new StringTokenizer(debEntry.getIncludes(), ",");
 
-        GpgKey gpgKey = getGpgKey(rpmEntry.getGpgKeyName());
+        GpgKey gpgKey = getGpgKey(debEntry.getGpgKeyName());
         if (gpgKey != null && gpgKey.getPrivateKey().getPlainText().length() > 0) {
-            listener.getLogger().println("[RpmSignPlugin] - Importing private key");
+            listener.getLogger().println("[DebSignPlugin] - Importing private key");
             importGpgKey(gpgKey.getPrivateKey().getPlainText(), build, launcher, listener);
-            listener.getLogger().println("[RpmSignPlugin] - Imported private key");
+            listener.getLogger().println("[DebSignPlugin] - Imported private key");
         }
-        
+
         if (!isGpgKeyAvailable(gpgKey, build, launcher, listener)){
-          listener.getLogger().println("[RpmSignPlugin] - Can't find GPG key: " + rpmEntry.getGpgKeyName());
+          listener.getLogger().println("[DebSignPlugin] - Can't find GPG key: " + debEntry.getGpgKeyName());
           return false;
         }
 
-        while (rpmGlobTokenizer.hasMoreTokens()) {
-          String rpmGlob = rpmGlobTokenizer.nextToken();
+        while (debGlobTokenizer.hasMoreTokens()) {
+          String debGlob = debGlobTokenizer.nextToken();
 
-          listener.getLogger().println("[RpmSignPlugin] - Publishing " + rpmGlob);
+          listener.getLogger().println("[DebSignPlugin] - Publishing " + debGlob);
 
-          FilePath[] matchedRpms = build.getWorkspace().list(rpmGlob);
-          if (ArrayUtils.isEmpty(matchedRpms)) {
-            listener.getLogger().println("[RpmSignPlugin] - No RPMs matching " + rpmGlob);
+          FilePath[] matchedDebs = build.getWorkspace().list(debGlob);
+          if (ArrayUtils.isEmpty(matchedDebs)) {
+            listener.getLogger().println("[DebSignPlugin] - No DEBs matching " + debGlob);
           } else {
-            ArgumentListBuilder rpmSignCommand = new ArgumentListBuilder();
+              for (FilePath debFilePath : matchedDebs) {
 
-            rpmSignCommand.add("rpm", "--define");
-            rpmSignCommand.add("_gpg_name " + gpgKey.getName());
-            rpmSignCommand.addTokenized(rpmEntry.getCmdlineOpts());
+                  ArgumentListBuilder debSignCommand = new ArgumentListBuilder();
+                  debSignCommand.add("debsigs", "--sign=origin");
+                  debSignCommand.add("-k", gpgKey.getName());
+                  debSignCommand.addTokenized(debEntry.getCmdlineOpts());
+                  debSignCommand.add(debFilePath.toURI().normalize().getPath());
 
-            if (rpmEntry.isResign()) {
-              rpmSignCommand.add("--resign");
-            } else {
-              rpmSignCommand.add("--addsign");
-            }
+                  String debCommandLine = debSignCommand.toString();
+                  listener.getLogger().println("[DebSignPlugin] - Running " + debCommandLine);
 
-            for (FilePath rpmFilePath : matchedRpms) {
-              rpmSignCommand.add(rpmFilePath.toURI().normalize().getPath());
-            }
+                  ArgumentListBuilder expectCommand = new ArgumentListBuilder();
+                  expectCommand.add("expect", "-");
 
-            String rpmCommandLine = rpmSignCommand.toString();
-            listener.getLogger().println("[RpmSignPlugin] - Running " + rpmCommandLine);
+                  Launcher.ProcStarter ps = launcher.new ProcStarter();
+                  ps = ps.cmds(expectCommand).stdout(listener);
+                  ps = ps.pwd(build.getWorkspace()).envs(build.getEnvironment(listener));
 
-            ArgumentListBuilder expectCommand = new ArgumentListBuilder();
-            expectCommand.add("expect", "-");
+                  byte[] expectScript = createExpectScriptFile(debCommandLine, gpgKey.getPassphrase().getPlainText());
+                  ByteArrayInputStream is = new ByteArrayInputStream(expectScript);
+                  ps.stdin(is);
 
-            Launcher.ProcStarter ps = launcher.new ProcStarter();
-            ps = ps.cmds(expectCommand).stdout(listener);
-            ps = ps.pwd(build.getWorkspace()).envs(build.getEnvironment(listener));
-
-            byte[] expectScript = createExpectScriptFile(rpmCommandLine, gpgKey.getPassphrase().getPlainText());
-            ByteArrayInputStream is = new ByteArrayInputStream(expectScript);
-            ps.stdin(is);
-
-            Proc proc = launcher.launch(ps);
-            int retcode = proc.join();
-            if (retcode != 0) {
-              listener.getLogger().println("[RpmSignPlugin] - Failed signing RPMs ...");
-              return false;
-            }
+                  Proc proc = launcher.launch(ps);
+                  int retcode = proc.join();
+                  if (retcode != 0) {
+                      listener.getLogger().println("[DebSignPlugin] - Failed signing RPMs ...");
+                      return false;
+                  }
+              }
           }
         }
       }
 
-      listener.getLogger().println("[RpmSignPlugin] - Finished signing RPMs ...");
+      listener.getLogger().println("[DebSignPlugin] - Finished signing DEBs ...");
     } else {
-      listener.getLogger().println("[RpmSignPlugin] - Skipping signing RPMs ...");
+      listener.getLogger().println("[DebSignPlugin] - Skipping signing DEBs ...");
     }
     return true;
   }

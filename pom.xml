@@ -6,11 +6,11 @@
     <version>1.480</version>
   </parent>
 
-  <artifactId>rpmsign-plugin</artifactId>
-  <version>0.4.7-SNAPSHOT</version>
+  <artifactId>debsign-plugin</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/RPM+Sign+Plugin</url>
+  <url>https://wiki.jenkins-ci.org/display/JENKINS/DEB+Sign+Plugin</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
