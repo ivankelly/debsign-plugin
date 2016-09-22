@@ -1,12 +1,21 @@
-# Jenkins RPM Sign Plugin
+# Jenkins DEB Sign Plugin
 
-[![Build Status](https://buildhive.cloudbees.com/job/jenkinsci/job/rpmsign-plugin/badge/icon)](https://buildhive.cloudbees.com/job/jenkinsci/job/rpmsign-plugin/)
+This is a complete ripoff of the [Jenkins RPM Sign plugin](https://github.com/jenkinsci/rpmsign-plugin).
 
-This plugin adds a post-build step to sign rpms using GPG.
+This plugin adds a post-build step to sign debs using GPG.
 
 ## Dependencies
 
 This plugin depends on both **gpg** and **expect** being installed on the host machine. 
 
-## Usage
+## Building and installing
+
+To build the plugin, run
+
+```
+$ mvn package
+```
+
+This will create a hpi file (target/debsign-plugin.hpi). Install this through the Jenkins web UI.
+
 

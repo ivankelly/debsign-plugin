@@ -10,7 +10,7 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/DEB+Sign+Plugin</url>
+  <url>https://github.com/ivankelly/debsign-plugin</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -55,40 +55,10 @@
       <comments>A business-friendly OSS license</comments>
     </license>
   </licenses>
-  <organization>
-    <name>SpecEMS</name>
-    <url>http://specems.github.io/</url>
-  </organization>
-  <developers>
-    <developer>
-      <id>jimmidyson</id>
-      <name>Jimmi Dyson</name>
-      <email>jimmidyson@gmail.com</email>
-      <url>http://specems.github.io</url>
-      <organization>SpecEMS</organization>
-      <organizationUrl>http://specems.github.io</organizationUrl>
-      <roles>
-        <role>engineer</role>
-      </roles>
-      <timezone>0</timezone>
-    </developer>
-    <developer>
-      <id>elibus</id>
-      <name>Marco Tizzoni</name>
-      <email>marco.tizzoni@gmail.com</email>
-      <url>https://github.com/elibus/</url>
-      <organization>Freaknet</organization>
-      <organizationUrl>http://freaknet.org/</organizationUrl>
-      <roles>
-        <role>engineer</role>
-      </roles>
-      <timezone>+1</timezone>
-    </developer>
-  </developers>
   <scm>
-    <connection>scm:git:git://github.com/jenkinsci/rpmsign-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/rpmsign-plugin.git</developerConnection>
-    <url>http://github.com/jenkinsci/rpmsign-plugin</url>
+    <connection>scm:git:git://github.com/ivankelly/debsign-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:ivankelly/debsign-plugin.git</developerConnection>
+    <url>http://github.com/ivankelly/debsign-plugin</url>
     <tag>HEAD</tag>
   </scm>
 </project>
